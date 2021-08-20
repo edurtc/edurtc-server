@@ -30,8 +30,8 @@ func main() {
 
 	s := sfu.NewSFU(conf.SfuConfig)
 	s.NewDatachannel(sfu.APIChannelLabel)
-	ns := server.NewNatsSignal(s, nc)
-	ns.StartServer(conf)
+	ns := server.NewNatsSignal(s, nc, conf)
+	ns.StartServer()
 }
 
 func setupConnOptions(opts []nats.Option) []nats.Option {

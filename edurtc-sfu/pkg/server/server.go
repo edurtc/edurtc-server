@@ -15,21 +15,23 @@ type NatsSignal struct {
 	mutex *sync.Mutex
 	emission.Emitter
 	wg sync.WaitGroup
+	config *config.Config
 }
 
-func NewNatsSignal(sfu *sfu.SFU, n *nats.Conn) *NatsSignal {
+func NewNatsSignal(sfu *sfu.SFU, n *nats.Conn, c *config.Config) *NatsSignal {
 	return &NatsSignal{
 		sfu:     sfu,
 		natsconn: n,
 		mutex:   new(sync.Mutex),
 		Emitter: *emission.NewEmitter(),
 		wg:      sync.WaitGroup{},
+		config: c,
 	}
 }
 
-func (n *NatsSignal) StartServer(conf *config.Config)  {
-	fmt.Println("started", conf.ServerName)
+func (n *NatsSignal) StartServer()  {
+	fmt.Println("started", n.config.ServerName)
 	defer n.natsconn.Close()
-	n.listenQueue(conf)
+	n.listenQueue()
 }
 
