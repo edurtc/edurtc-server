@@ -11,6 +11,7 @@ import (
 
 type NatsSignal struct {
 	sfu *sfu.SFU
+	peers map[string]*sfu.PeerLocal
 	natsconn *nats.Conn
 	mutex *sync.Mutex
 	emission.Emitter
@@ -18,9 +19,10 @@ type NatsSignal struct {
 	config *config.Config
 }
 
-func NewNatsSignal(sfu *sfu.SFU, n *nats.Conn, c *config.Config) *NatsSignal {
+func NewNatsSignal(s *sfu.SFU, n *nats.Conn, c *config.Config) *NatsSignal {
 	return &NatsSignal{
-		sfu:     sfu,
+		sfu:     s,
+		peers: make(map[string]*sfu.PeerLocal),
 		natsconn: n,
 		mutex:   new(sync.Mutex),
 		Emitter: *emission.NewEmitter(),
@@ -30,8 +32,15 @@ func NewNatsSignal(sfu *sfu.SFU, n *nats.Conn, c *config.Config) *NatsSignal {
 }
 
 func (n *NatsSignal) StartServer()  {
+	n.StartListen()
 	fmt.Println("started", n.config.ServerName)
+	n.wg.Add(1)
 	defer n.natsconn.Close()
 	n.listenQueue()
+	go func() {
+		n.listenSubscribe()
+		n.wg.Done()
+	}()
+	n.wg.Wait()
 }
 

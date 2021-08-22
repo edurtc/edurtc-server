@@ -10,6 +10,7 @@ import (
 type Config struct {
 	SfuConfig sfu.Config
 	ServerName uuid.UUID
+	Jwt *JwtConfig
 }
 
 func New(filename string, filetype string, filepath string, servername uuid.UUID) (*Config, error) {
@@ -29,5 +30,5 @@ func New(filename string, filetype string, filepath string, servername uuid.UUID
 	}
 
 
-	return &Config{SfuConfig: conf, ServerName: servername}, nil
+	return &Config{SfuConfig: conf, ServerName: servername, Jwt: NewJwtConfig()}, nil
 }
